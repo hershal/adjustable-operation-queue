@@ -74,7 +74,7 @@ class Operation {
     this.cancelled = false;
   }
 
-  /* make sure your task resolve or rejects the promise! */
+  /* make sure your task resolves or rejects the promise! */
   start() {
     this.started = true;
     return new Promise((res, rej) => this._task(res, rej));
