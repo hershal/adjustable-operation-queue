@@ -31,7 +31,7 @@ describe('OperationQueue tests', function () {
       .then(() => done());
   });
 
-  it(`should limit to ${concurrency} tasks at once`, function (done) {
+  it(`should limit ${numOperations} tasks to ${concurrency} tasks at once`, function (done) {
     operations = Array.from(new Array(numOperations), (x, i) => {
       return new Operation((done)  => {
         setTimeout(() => {
