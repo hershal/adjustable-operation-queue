@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const {Operation, OperationQueue} = require('../limit');
+const {Operation, OperationQueue} = require('../index');
 
 
 describe('OperationQueue tests', function () {
