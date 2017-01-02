@@ -74,10 +74,10 @@ class Operation {
     this.cancelled = false;
   }
 
-  /* make sure your task return a promise! */
+  /* make sure your task resolve or rejects the promise! */
   start() {
     this.started = true;
-    return new Promise((res, rej) => this._task(res));
+    return new Promise((res, rej) => this._task(res, rej));
   }
 
   toString() {
