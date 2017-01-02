@@ -3,6 +3,9 @@
 const assert = require('assert');
 
 class OperationQueue {
+
+  get pendingOperations() { return this._pendingOperations; }
+
   constructor(concurrency, verbose) {
     this._started = false;
     this._concurrency = concurrency;
