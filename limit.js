@@ -3,15 +3,23 @@
 const assert = require('assert');
 
 class OperationQueue {
-  constructor(concurrency) {
+  constructor(concurrency, verbose) {
     this._started = false;
     this._concurrency = concurrency;
     this._operationsInFlight = new Array();
     this._pendingOperations = new Array();
     this._finishedOperations = new Array();
 
+    this._verbose = verbose ? verbose : false;
+
     this._resolveCallback = undefined;
     this._rejectCallback = undefined;
+  }
+
+  log(message) {
+    if (this._verbose) {
+      console.log(message);
+    }
   }
 
   addOperation(operation) {
@@ -30,11 +38,11 @@ class OperationQueue {
     assert(idx >= 0);
     this._operationsInFlight.splice(idx, 1);
 
-    /* console.log('OQ: +++ Operation Finished ' + task.toString()); */
+    this.log('OQ: +++ Operation Finished ' + task.toString());
     this._finishedOperations.push(task);
 
     if (this._operationsInFlight.length == 0 && this._pendingOperations == 0) {
-      /* console.log('OQ: ALL DONE!'); */
+      this.log('OQ: *** All Done');
       this._resolveCallback();
     }
 
