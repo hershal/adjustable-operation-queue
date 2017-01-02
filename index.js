@@ -8,7 +8,6 @@ class OperationQueue {
     this._concurrency = concurrency;
     this._operationsInFlight = new Array();
     this._pendingOperations = new Array();
-    this._finishedOperations = new Array();
 
     this._verbose = verbose ? verbose : false;
 
@@ -39,7 +38,6 @@ class OperationQueue {
     this._operationsInFlight.splice(idx, 1);
 
     this.log('OQ: +++ Operation Finished ' + task.toString());
-    this._finishedOperations.push(task);
 
     if (this._operationsInFlight.length == 0 && this._pendingOperations == 0) {
       this.log('OQ: *** All Done');
