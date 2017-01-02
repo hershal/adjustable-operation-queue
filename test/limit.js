@@ -1,8 +1,6 @@
 'use strict';
 
 const limit = require('../limit');
-
-const _ = require('lodash');
 const assert = require('assert');
 
 class OperationQueue {
@@ -79,7 +77,6 @@ class Operation {
 }
 
 describe('OperationQueue tests', function () {
-
   let queue, operations;
   const concurrency = 5;
   const numOperations = 10;
