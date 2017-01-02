@@ -21,16 +21,23 @@ class OperationQueue {
     this._pendingOperations.push(operation);
   }
 
-  taskFinished(task) {
+  start() {
+    return new Promise((res, rej) => {
+      this._resolveCallback = res;
+      this._start();
+    });
+  }
+
+  _taskFinished(task) {
     let idx = this._operationsInFlight.indexOf(task);
     assert(idx >= 0);
     this._operationsInFlight.splice(idx, 1);
 
-    console.log('OQ: Operation Finished +++ ' + task.toString());
+    /* console.log('OQ: +++ Operation Finished ' + task.toString()); */
     this._finishedOperations.push(task);
 
     if (this._operationsInFlight.length == 0 && this._pendingOperations == 0) {
-      console.log('OQ: ALL DONE!');
+      /* console.log('OQ: ALL DONE!'); */
       this._resolveCallback();
     }
 
@@ -45,18 +52,11 @@ class OperationQueue {
       }
 
       op.start().then(() => {
-        this.taskFinished(op);
+        this._taskFinished(op);
       });
-      console.log('OQ: Operation Started --- ' + op.toString());
+      /* console.log('OQ: --- Operation Started ' + op.toString()); */
       this._operationsInFlight.push(op);
     }
-  }
-
-  start() {
-    return new Promise((res, rej) => {
-      this._resolveCallback = res;
-      this._start();
-    });
   }
 }
 
@@ -106,12 +106,19 @@ describe('OperationQueue tests', function () {
       .then(() => done());
   });
 
-  it('should run a task', function (done) {
-    operations.forEach((t) => queue.addOperation(t));
-    queue.start()
-      .then(() => {
-        console.log('done!!');
-        done();
+  it(`should limit to ${concurrency} tasks at once`, function (done) {
+    operations = Array.from(new Array(numOperations), (x, i) => {
+      return new Operation((done)  => {
+        setTimeout(() => {
+          assert(queue._operationsInFlight.length <= queue._concurrency);
+          done();
+        }, Math.random()*500);
       });
+    });
+
+    operations.forEach((t) => queue.addOperation(t));
+    queue
+      .start()
+      .then(() => done());
   });
 });
