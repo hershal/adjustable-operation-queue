@@ -47,3 +47,31 @@ describe('OperationQueue tests', function () {
       .then(() => done());
   });
 });
+
+
+describe('Randomized OperationQueue tests', function () {
+  const numTimes = 10;
+  for (let i=0; i<numTimes; ++i) {
+    const concurrency = Math.round(Math.random()*100);
+    const numTasks = Math.round(Math.random()*1000);
+
+    it(`should run ${numTasks} tasks limited to ${concurrency} in parallel`, function (done) {
+      let queue = new OperationQueue(concurrency);
+      let operations = Array.from(new Array(numTasks), (x, i) => {
+        return new Operation((done)  => {
+          setTimeout(() => {
+            assert(queue._operationsInFlight.length <= queue._concurrency);
+            done();
+          }, Math.random()*50);
+        });
+      });
+
+      operations.forEach((t) => queue.addOperation(t));
+      assert(operations.length > 0);
+      assert(queue.pendingOperations.length == operations.length);
+      queue
+        .start()
+        .then(() => done());
+    });
+  }
+});
