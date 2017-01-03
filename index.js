@@ -3,7 +3,6 @@
 const assert = require('assert');
 
 class OperationQueue {
-
   get pendingOperations() { return this._pendingOperations; }
 
   constructor(parallelism, verbose) {
@@ -68,10 +67,22 @@ class OperationQueue {
 module.exports.OperationQueue = OperationQueue;
 
 class Operation {
+
+  get uid() { return this._uid; }
+
   constructor(task) {
     this._task = task;
+    this._uid = this._generateUID();
     this.started = false;
     this.cancelled = false;
+  }
+
+  _s4() {
+    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+  }
+
+  _generateUID() {
+    return (this._s4() + this._s4());
   }
 
   /* make sure your task resolves or rejects the promise! */
@@ -81,7 +92,7 @@ class Operation {
   }
 
   toString() {
-    return `Operation: (started: ${this.started}, cancelled: ${this.cancelled})`;
+    return `Operation: (guid: ${this.uid}, started: ${this.started}, cancelled: ${this.cancelled})`;
   }
 }
 module.exports.Operation = Operation;
