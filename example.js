@@ -2,20 +2,29 @@
 
 const {Operation, OperationQueue} = require('./index');
 
-/* construct an OperationQueue which runs five tasks in parallel */
+/* Construct an OperationQueue which runs five tasks in parallel. The first
+ * parameter is the maximum parallelism allowed. The second parameter is
+ * optional and is for verbose prints. The operations run silently otherwise. */
 let queue = new OperationQueue(2, true);
 
-/* construct the operations graph */
+/* Construct the operations graph. Use OperationQueue.addOperation on an
+ * operation to add it to the queue. */
 let operations = Array.from(new Array(6), (x, i) => {
-  return new Operation((done)  => {
-    setTimeout(() => done(), Math.random()*50);
+  /* Construct a new Operation. Operations take in a function which call done()
+   * or failed() depending on the outcome of the operation. Please remember to
+   * call done() when your task finishes otherwise the queue can't keep track of
+   * your operation. */
+  return new Operation((done, failed)  => {
+    /* Set our operations to finish at a random interval. */
+    setTimeout(() => done(), Math.random()*1000);
   });
 });
 
-/* add the operations to the queue */
+/* Add the operations to the queue */
 operations.forEach((t) => queue.addOperation(t));
 
-/* start! */
+/* Start! The OperationQueue returns an EC2015 Promise when all the operations
+ * are complete. Promise rejection is not yet supported :( */
 queue
   .start()
   .then(() => console.log('Finished.'));

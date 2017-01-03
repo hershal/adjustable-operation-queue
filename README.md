@@ -13,48 +13,64 @@ sure that only a subset are running in parallel at any given time.
 ```javascript
 'use strict';
 
-const {Operation, OperationQueue} = require('limitable-operation-queue');
+const {Operation, OperationQueue} = require('./index');
 
-/* construct an OperationQueue which runs five tasks in parallel */
+/* Construct an OperationQueue which runs five tasks in parallel. The first
+ * parameter is the maximum parallelism allowed. The second parameter is
+ * optional and is for verbose prints. The operations run silently otherwise. */
 let queue = new OperationQueue(2, true);
 
-/* construct the operations graph */
+/* Construct the operations graph. Use OperationQueue.addOperation on an
+ * operation to add it to the queue. */
 let operations = Array.from(new Array(6), (x, i) => {
-  return new Operation((done)  => {
-    setTimeout(() => done(), Math.random()*50);
+  /* Construct a new Operation. Operations take in a function which call done()
+   * or failed() depending on the outcome of the operation. Please remember to
+   * call done() when your task finishes otherwise the queue can't keep track of
+   * your operation. */
+  return new Operation((done, failed)  => {
+    /* Set our operations to finish at a random interval. */
+    setTimeout(() => done(), Math.random()*1000);
   });
 });
 
-/* add the operations to the queue */
+/* Add the operations to the queue */
 operations.forEach((t) => queue.addOperation(t));
 
-/* start! */
+/* Start! The OperationQueue returns an EC2015 Promise when all the operations
+ * are complete. Promise rejection is not yet supported :( */
 queue
   .start()
   .then(() => console.log('Finished.'));
 ```
 
-Which will output
+Which will output something like
 ```
-OQ: === Added Operation: (guid: 92f0bf66, started: false)
-OQ: === Added Operation: (guid: 434aae00, started: false)
-OQ: === Added Operation: (guid: 15366c9d, started: false)
-OQ: === Added Operation: (guid: cd6aee2c, started: false)
-OQ: === Added Operation: (guid: 0990468d, started: false)
-OQ: === Added Operation: (guid: eb67bd07, started: false)
+OQ: === Added Operation: (guid: 1f9f36b4, started: false)
+OQ: === Added Operation: (guid: 69e24f63, started: false)
+OQ: === Added Operation: (guid: b514f414, started: false)
+OQ: === Added Operation: (guid: be29480c, started: false)
+OQ: === Added Operation: (guid: 0d0c377d, started: false)
+OQ: === Added Operation: (guid: f6a82261, started: false)
 OQ: *** Starting
-OQ: --- Started Operation: (guid: eb67bd07, started: true)
-OQ: --- Started Operation: (guid: 0990468d, started: true)
-OQ: +++ Finished Operation: (guid: eb67bd07, started: true)
-OQ: --- Started Operation: (guid: cd6aee2c, started: true)
-OQ: +++ Finished Operation: (guid: cd6aee2c, started: true)
-OQ: --- Started Operation: (guid: 15366c9d, started: true)
-OQ: +++ Finished Operation: (guid: 0990468d, started: true)
-OQ: --- Started Operation: (guid: 434aae00, started: true)
-OQ: +++ Finished Operation: (guid: 434aae00, started: true)
-OQ: --- Started Operation: (guid: 92f0bf66, started: true)
-OQ: +++ Finished Operation: (guid: 92f0bf66, started: true)
-OQ: +++ Finished Operation: (guid: 15366c9d, started: true)
+OQ: --- Started Operation: (guid: 1f9f36b4, started: true)
+OQ: --- Started Operation: (guid: 69e24f63, started: true)
+OQ: +++ Finished Operation: (guid: 69e24f63, started: true)
+OQ: --- Started Operation: (guid: b514f414, started: true)
+OQ: +++ Finished Operation: (guid: 1f9f36b4, started: true)
+OQ: --- Started Operation: (guid: be29480c, started: true)
+OQ: +++ Finished Operation: (guid: b514f414, started: true)
+OQ: --- Started Operation: (guid: 0d0c377d, started: true)
+OQ: +++ Finished Operation: (guid: be29480c, started: true)
+OQ: --- Started Operation: (guid: f6a82261, started: true)
+OQ: +++ Finished Operation: (guid: f6a82261, started: true)
+OQ: +++ Finished Operation: (guid: 0d0c377d, started: true)
 OQ: *** All Done
 Finished.
 ```
+
+Notice that the last two operations finished out of their original order, but
+the Promise still resolved properly.
+
+# TODO
+- [ ] Arrange for cancellable Operations
+- [ ] Reject the overall Promise when an individual callback is rejected
