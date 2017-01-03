@@ -1,4 +1,4 @@
-# Operation Queue
+# Adjustable Operation Queue
 Adjustable asynchronous operation queue
 
 Is your app too slow because you have to serialize all your requests? Wouldn't
