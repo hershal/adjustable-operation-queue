@@ -40,7 +40,7 @@ class OperationQueue {
     assert(idx >= 0);
     this._operationsInFlight.splice(idx, 1);
 
-    this.log('OQ: +++ Operation Finished ' + task.toString());
+    this.log('OQ: +++ Finished ' + task.toString());
 
     if (this._operationsInFlight.length == 0 && this._pendingOperations == 0) {
       this.log('OQ: *** All Done');
@@ -60,7 +60,7 @@ class OperationQueue {
       op.start().then(() => {
         this._taskFinished(op);
       });
-      this.log('OQ: --- Operation Started ' + op.toString());
+      this.log('OQ: --- Started ' + op.toString());
       this._operationsInFlight.push(op);
     }
   }
