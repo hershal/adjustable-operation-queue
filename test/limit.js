@@ -61,6 +61,9 @@ describe('Randomized OperationQueue tests', function () {
 
     it(`should run ${numTasks} tasks limited to ${parallelism} in parallel`, function (done) {
       let queue = new OperationQueue(parallelism);
+
+      /* Build the operation graph; each operation here checks that the number
+       * of in-flight operations does not exceed the requested parallelism */
       let operations = Array.from(new Array(numTasks), (x, i) => {
         return new Operation((done)  => {
           setTimeout(() => {
@@ -70,9 +73,12 @@ describe('Randomized OperationQueue tests', function () {
         });
       });
 
+      /* add the operations to the queue */
       operations.forEach((t) => queue.addOperation(t));
       assert(operations.length > 0);
       assert(queue.pendingOperations.length == operations.length);
+
+      /* run! */
       queue
         .start()
         .then(() => done());
