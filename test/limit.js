@@ -16,7 +16,7 @@ describe('OperationQueue tests', function () {
     /* construct the operations graph */
     operations = Array.from(new Array(numOperations), (x, i) => {
       return new Operation((done)  => {
-        setTimeout(() => done(), Math.random()*500);
+        setTimeout(() => done(), Math.random()*50);
       });
     });
   });
@@ -41,7 +41,7 @@ describe('OperationQueue tests', function () {
         setTimeout(() => {
           assert(queue._operationsInFlight.length <= queue._parallelism);
           done();
-        }, Math.random()*500);
+        }, Math.random()*10);
       });
     });
 
@@ -66,7 +66,7 @@ describe('Randomized OperationQueue tests', function () {
           setTimeout(() => {
             assert(queue._operationsInFlight.length <= queue._parallelism);
             done();
-          }, Math.random()*50);
+          }, Math.random()*10);
         });
       });
 
