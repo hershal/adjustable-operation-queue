@@ -17,7 +17,7 @@ class OperationQueue {
     this._rejectCallback = undefined;
   }
 
-  log(message) {
+  _log(message) {
     if (this._verbose) {
       console.log(message);
     }
@@ -39,10 +39,10 @@ class OperationQueue {
     assert(idx >= 0);
     this._operationsInFlight.splice(idx, 1);
 
-    this.log('OQ: +++ Finished ' + task.toString());
+    this._log('OQ: +++ Finished ' + task.toString());
 
     if (this._operationsInFlight.length == 0 && this._pendingOperations == 0) {
-      this.log('OQ: *** All Done');
+      this._log('OQ: *** All Done');
       this._resolveCallback();
     }
 
@@ -59,7 +59,7 @@ class OperationQueue {
       op.start().then(() => {
         this._taskFinished(op);
       });
-      this.log('OQ: --- Started ' + op.toString());
+      this._log('OQ: --- Started ' + op.toString());
       this._operationsInFlight.push(op);
     }
   }
@@ -67,7 +67,6 @@ class OperationQueue {
 module.exports.OperationQueue = OperationQueue;
 
 class Operation {
-
   get uid() { return this._uid; }
 
   constructor(task) {
