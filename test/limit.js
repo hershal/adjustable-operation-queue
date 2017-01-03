@@ -4,6 +4,17 @@ const assert = require('assert');
 const {Operation, OperationQueue} = require('../index');
 
 
+function linearOperations(numOperations, queue) {
+  return Array.from(new Array(numOperations), (x, i) => {
+    return new Operation((done) => {
+      assert(queue.running);
+      assert(queue._operationsInFlight.length <= queue._parallelism);
+      setTimeout(() => done(), Math.random()*20);
+    });
+  });
+}
+
+
 describe('OperationQueue tests', function () {
   let queue, operations;
   const parallelism = 5;
@@ -14,37 +25,21 @@ describe('OperationQueue tests', function () {
     queue = new OperationQueue(parallelism);
 
     /* construct the operations graph */
-    operations = Array.from(new Array(numOperations), (x, i) => {
-      return new Operation((done)  => {
-        setTimeout(() => done(), Math.random()*50);
-      });
-    });
-  });
-
-  it('task should be valid', function (done) {
-    operations[0].start().then(() => done());
+    operations = linearOperations(numOperations, queue);
   });
 
   it(`should run ${parallelism} tasks`, function (done) {
+    assert(!queue.running);
     operations
       .slice(0, parallelism)
       .forEach((t) => queue.addOperation(t));
     queue
       .start()
-      .then(() => done());
+      .then(() => { assert(!queue.running); done(); });
+    assert(queue.running);
   });
 
   it(`should limit ${numOperations} tasks to ${parallelism} tasks at once`, function (done) {
-    /* have to re-construct the oeprations because I want to insert some middleware */
-    operations = Array.from(new Array(numOperations), (x, i) => {
-      return new Operation((done)  => {
-        setTimeout(() => {
-          assert(queue._operationsInFlight.length <= queue._parallelism);
-          done();
-        }, Math.random()*10);
-      });
-    });
-
     operations.forEach((t) => queue.addOperation(t));
     queue
       .start()
@@ -57,21 +52,14 @@ describe('Randomized OperationQueue tests', function () {
   const numTimes = 10;
   for (let i=0; i<numTimes; ++i) {
     const parallelism = Math.ceil(Math.random()*100);
-    const numTasks = Math.ceil(Math.random()*100);
+    const numOperations = Math.ceil(Math.random()*100);
 
-    it(`should run ${numTasks} tasks limited to ${parallelism} in parallel`, function (done) {
+    it(`should run ${numOperations} tasks limited to ${parallelism} in parallel`, function (done) {
       let queue = new OperationQueue(parallelism);
-
+      assert(!queue.running);
       /* Build the operation graph; each operation here checks that the number
        * of in-flight operations does not exceed the requested parallelism */
-      let operations = Array.from(new Array(numTasks), (x, i) => {
-        return new Operation((done)  => {
-          setTimeout(() => {
-            assert(queue._operationsInFlight.length <= queue._parallelism);
-            done();
-          }, Math.random()*10);
-        });
-      });
+      let operations = linearOperations(numOperations, queue);
 
       /* add the operations to the queue */
       operations.forEach((t) => queue.addOperation(t));
@@ -81,7 +69,7 @@ describe('Randomized OperationQueue tests', function () {
       /* run! */
       queue
         .start()
-        .then(() => done());
+        .then(() => { assert(!queue.running); done(); });
     });
   }
 });
