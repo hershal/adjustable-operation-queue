@@ -6,13 +6,13 @@ class OperationQueue {
   get pendingOperations() { return this._pendingOperations; }
   get running() { return this._running; }
 
-  constructor(parallelism, verbose) {
+  constructor(parallelism, options) {
     this._running = false;
     this._parallelism = parallelism;
     this._operationsInFlight = new Array();
     this._pendingOperations = new Array();
 
-    this._verbose = verbose ? verbose : false;
+    this._verbose = options && options.verbose ? options.verbose : false;
 
     this._resolveCallback = undefined;
     this._rejectCallback = undefined;
