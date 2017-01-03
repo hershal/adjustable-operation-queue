@@ -8,12 +8,12 @@ const {Operation, OperationQueue} = require('./index');
 let queue = new OperationQueue(3, true);
 
 /* Construct the operations graph. */
-let operations = Array.from(new Array(6), (_, i) => {
+let operations = Array.from(new Array(7), (_, i) => {
   /* Construct a new Operation. Operations take in a function which call done()
    * or failed() depending on the outcome of the operation. Please remember to
    * call done() when your task finishes otherwise the queue can't keep track of
    * your operation. */
-  return new Operation((done)  => {
+  return new Operation((done) => {
     /* Set our operations to finish at a random interval. */
     setTimeout(() => done(), Math.random()*1000);
   });
@@ -22,8 +22,13 @@ let operations = Array.from(new Array(6), (_, i) => {
 /* Add the operations to the queue. */
 operations.forEach((t) => queue.addOperation(t));
 
-/* Start! The OperationQueue returns an EC2015 Promise when all the operations
- * are complete. Promise rejection is not yet supported :( */
+/* Start! The OperationQueue returns an native Promise when all the operations
+ * are complete. You can check if the queue is running by accessing the
+ * 'running' property. Promise rejection is not yet supported :( */
 queue
   .start()
-  .then(() => console.log('Finished.'));
+  .then(() => console.log('Queue is running: ' + queue.running));
+
+/* Control flow returns back to you immediately after starting the first batch
+ * of operations. */
+console.log('Queue is running: ' + queue.running);

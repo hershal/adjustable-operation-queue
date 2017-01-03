@@ -21,12 +21,12 @@ const {Operation, OperationQueue} = require('./index');
 let queue = new OperationQueue(3, true);
 
 /* Construct the operations graph. */
-let operations = Array.from(new Array(6), (_, i) => {
+let operations = Array.from(new Array(7), (_, i) => {
   /* Construct a new Operation. Operations take in a function which call done()
    * or failed() depending on the outcome of the operation. Please remember to
    * call done() when your task finishes otherwise the queue can't keep track of
    * your operation. */
-  return new Operation((done)  => {
+  return new Operation((done) => {
     /* Set our operations to finish at a random interval. */
     setTimeout(() => done(), Math.random()*1000);
   });
@@ -35,36 +35,46 @@ let operations = Array.from(new Array(6), (_, i) => {
 /* Add the operations to the queue. */
 operations.forEach((t) => queue.addOperation(t));
 
-/* Start! The OperationQueue returns an EC2015 Promise when all the operations
- * are complete. Promise rejection is not yet supported :( */
+/* Start! The OperationQueue returns an native Promise when all the operations
+ * are complete. You can check if the queue is running by accessing the
+ * 'running' property. Promise rejection is not yet supported :( */
 queue
   .start()
-  .then(() => console.log('Finished.'));
+  .then(() => console.log('Queue is running: ' + queue.running));
+
+/* Control flow returns back to you immediately after starting the first batch
+ * of operations. */
+console.log('Queue is running: ' + queue.running);
 ```
 
-Which will output something like
+Which will output something like:
 ```
-OQ: === Added Operation: (guid: 279b9d9d, started: false)
-OQ: === Added Operation: (guid: b53fe864, started: false)
-OQ: === Added Operation: (guid: 001e9c4d, started: false)
-OQ: === Added Operation: (guid: 5211e4a3, started: false)
-OQ: === Added Operation: (guid: c964c456, started: false)
-OQ: === Added Operation: (guid: e299aa92, started: false)
+$ node ./example.js
+OQ: === Added Operation: (guid: d140e7c3)
+OQ: === Added Operation: (guid: fd4e6176)
+OQ: === Added Operation: (guid: 811e088a)
+OQ: === Added Operation: (guid: 316ada0c)
+OQ: === Added Operation: (guid: c73f6340)
+OQ: === Added Operation: (guid: b0132cd7)
+OQ: === Added Operation: (guid: 8850e6bb)
 OQ: *** Starting
-OQ: +++ Started  Operation: (guid: 279b9d9d, started: true)
-OQ: +++ Started  Operation: (guid: b53fe864, started: true)
-OQ: +++ Started  Operation: (guid: 001e9c4d, started: true)
-OQ: --- Finished Operation: (guid: b53fe864, started: true)
-OQ: +++ Started  Operation: (guid: 5211e4a3, started: true)
-OQ: --- Finished Operation: (guid: 5211e4a3, started: true)
-OQ: +++ Started  Operation: (guid: c964c456, started: true)
-OQ: --- Finished Operation: (guid: 279b9d9d, started: true)
-OQ: +++ Started  Operation: (guid: e299aa92, started: true)
-OQ: --- Finished Operation: (guid: c964c456, started: true)
-OQ: --- Finished Operation: (guid: 001e9c4d, started: true)
-OQ: --- Finished Operation: (guid: e299aa92, started: true)
+OQ: +++ Started  Operation: (guid: d140e7c3)
+OQ: +++ Started  Operation: (guid: fd4e6176)
+OQ: +++ Started  Operation: (guid: 811e088a)
+Queue is running: true
+OQ: --- Finished Operation: (guid: d140e7c3)
+OQ: +++ Started  Operation: (guid: 316ada0c)
+OQ: --- Finished Operation: (guid: fd4e6176)
+OQ: +++ Started  Operation: (guid: c73f6340)
+OQ: --- Finished Operation: (guid: c73f6340)
+OQ: +++ Started  Operation: (guid: b0132cd7)
+OQ: --- Finished Operation: (guid: 811e088a)
+OQ: +++ Started  Operation: (guid: 8850e6bb)
+OQ: --- Finished Operation: (guid: 8850e6bb)
+OQ: --- Finished Operation: (guid: 316ada0c)
+OQ: --- Finished Operation: (guid: b0132cd7)
 OQ: *** All Done
-Finished.
+Queue is running: false
 ```
 
 Notice that the last few operations finished out of their original order, but
