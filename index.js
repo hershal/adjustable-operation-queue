@@ -6,9 +6,9 @@ class OperationQueue {
 
   get pendingOperations() { return this._pendingOperations; }
 
-  constructor(concurrency, verbose) {
+  constructor(parallelism, verbose) {
     this._started = false;
-    this._concurrency = concurrency;
+    this._parallelism = parallelism;
     this._operationsInFlight = new Array();
     this._pendingOperations = new Array();
 
@@ -51,7 +51,7 @@ class OperationQueue {
   }
 
   _start() {
-    while (this._operationsInFlight.length < this._concurrency) {
+    while (this._operationsInFlight.length < this._parallelism) {
       let op = this._pendingOperations.pop();
       if (!op) {
         break;

@@ -6,11 +6,14 @@ const {Operation, OperationQueue} = require('../index');
 
 describe('OperationQueue tests', function () {
   let queue, operations;
-  const concurrency = 5;
+  const parallelism = 5;
   const numOperations = 10;
 
   beforeEach(function () {
-    queue = new OperationQueue(concurrency);
+    /* construct the queue */
+    queue = new OperationQueue(parallelism);
+
+    /* construct the operations graph */
     operations = Array.from(new Array(numOperations), (x, i) => {
       return new Operation((done)  => {
         setTimeout(() => done(), Math.random()*500);
@@ -22,20 +25,21 @@ describe('OperationQueue tests', function () {
     operations[0].start().then(() => done());
   });
 
-  it(`should run ${concurrency} tasks`, function (done) {
+  it(`should run ${parallelism} tasks`, function (done) {
     operations
-      .slice(0, concurrency)
+      .slice(0, parallelism)
       .forEach((t) => queue.addOperation(t));
     queue
       .start()
       .then(() => done());
   });
 
-  it(`should limit ${numOperations} tasks to ${concurrency} tasks at once`, function (done) {
+  it(`should limit ${numOperations} tasks to ${parallelism} tasks at once`, function (done) {
+    /* have to re-construct the oeprations because I want to insert some middleware */
     operations = Array.from(new Array(numOperations), (x, i) => {
       return new Operation((done)  => {
         setTimeout(() => {
-          assert(queue._operationsInFlight.length <= queue._concurrency);
+          assert(queue._operationsInFlight.length <= queue._parallelism);
           done();
         }, Math.random()*500);
       });
@@ -52,15 +56,15 @@ describe('OperationQueue tests', function () {
 describe('Randomized OperationQueue tests', function () {
   const numTimes = 10;
   for (let i=0; i<numTimes; ++i) {
-    const concurrency = Math.round(Math.random()*100);
-    const numTasks = Math.round(Math.random()*1000);
+    const parallelism = Math.ceil(Math.random()*100);
+    const numTasks = Math.ceil(Math.random()*100);
 
-    it(`should run ${numTasks} tasks limited to ${concurrency} in parallel`, function (done) {
-      let queue = new OperationQueue(concurrency);
+    it(`should run ${numTasks} tasks limited to ${parallelism} in parallel`, function (done) {
+      let queue = new OperationQueue(parallelism);
       let operations = Array.from(new Array(numTasks), (x, i) => {
         return new Operation((done)  => {
           setTimeout(() => {
-            assert(queue._operationsInFlight.length <= queue._concurrency);
+            assert(queue._operationsInFlight.length <= queue._parallelism);
             done();
           }, Math.random()*50);
         });
