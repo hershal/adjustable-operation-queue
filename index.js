@@ -25,9 +25,11 @@ class OperationQueue {
 
   addOperation(operation) {
     this._pendingOperations.push(operation);
+    this._log('OQ: === Added ' + operation.toString());
   }
 
   start() {
+    this._log('OQ: *** Starting');
     return new Promise((res, rej) => {
       this._resolveCallback = res;
       this._start();
