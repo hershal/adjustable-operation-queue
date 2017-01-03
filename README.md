@@ -15,13 +15,12 @@ sure that only a subset are running in parallel at any given time.
 
 const {Operation, OperationQueue} = require('./index');
 
-/* Construct an OperationQueue which runs two tasks in parallel. The first
+/* Construct an OperationQueue which runs three tasks in parallel. The first
  * parameter is the maximum parallelism allowed. The second parameter is
  * optional and is for verbose prints. The operations run silently otherwise. */
-let queue = new OperationQueue(2, true);
+let queue = new OperationQueue(3, true);
 
-/* Construct the operations graph. Use OperationQueue.addOperation on an
- * operation to add it to the queue. */
+/* Construct the operations graph. */
 let operations = Array.from(new Array(6), (_, i) => {
   /* Construct a new Operation. Operations take in a function which call done()
    * or failed() depending on the outcome of the operation. Please remember to
@@ -33,7 +32,7 @@ let operations = Array.from(new Array(6), (_, i) => {
   });
 });
 
-/* Add the operations to the queue */
+/* Add the operations to the queue. */
 operations.forEach((t) => queue.addOperation(t));
 
 /* Start! The OperationQueue returns an EC2015 Promise when all the operations
@@ -45,30 +44,30 @@ queue
 
 Which will output something like
 ```
-OQ: === Added Operation: (guid: 1f9f36b4, started: false)
-OQ: === Added Operation: (guid: 69e24f63, started: false)
-OQ: === Added Operation: (guid: b514f414, started: false)
-OQ: === Added Operation: (guid: be29480c, started: false)
-OQ: === Added Operation: (guid: 0d0c377d, started: false)
-OQ: === Added Operation: (guid: f6a82261, started: false)
+OQ: === Added Operation: (guid: 279b9d9d, started: false)
+OQ: === Added Operation: (guid: b53fe864, started: false)
+OQ: === Added Operation: (guid: 001e9c4d, started: false)
+OQ: === Added Operation: (guid: 5211e4a3, started: false)
+OQ: === Added Operation: (guid: c964c456, started: false)
+OQ: === Added Operation: (guid: e299aa92, started: false)
 OQ: *** Starting
-OQ: --- Started Operation: (guid: 1f9f36b4, started: true)
-OQ: --- Started Operation: (guid: 69e24f63, started: true)
-OQ: +++ Finished Operation: (guid: 69e24f63, started: true)
-OQ: --- Started Operation: (guid: b514f414, started: true)
-OQ: +++ Finished Operation: (guid: 1f9f36b4, started: true)
-OQ: --- Started Operation: (guid: be29480c, started: true)
-OQ: +++ Finished Operation: (guid: b514f414, started: true)
-OQ: --- Started Operation: (guid: 0d0c377d, started: true)
-OQ: +++ Finished Operation: (guid: be29480c, started: true)
-OQ: --- Started Operation: (guid: f6a82261, started: true)
-OQ: +++ Finished Operation: (guid: f6a82261, started: true)
-OQ: +++ Finished Operation: (guid: 0d0c377d, started: true)
+OQ: +++ Started  Operation: (guid: 279b9d9d, started: true)
+OQ: +++ Started  Operation: (guid: b53fe864, started: true)
+OQ: +++ Started  Operation: (guid: 001e9c4d, started: true)
+OQ: --- Finished Operation: (guid: b53fe864, started: true)
+OQ: +++ Started  Operation: (guid: 5211e4a3, started: true)
+OQ: --- Finished Operation: (guid: 5211e4a3, started: true)
+OQ: +++ Started  Operation: (guid: c964c456, started: true)
+OQ: --- Finished Operation: (guid: 279b9d9d, started: true)
+OQ: +++ Started  Operation: (guid: e299aa92, started: true)
+OQ: --- Finished Operation: (guid: c964c456, started: true)
+OQ: --- Finished Operation: (guid: 001e9c4d, started: true)
+OQ: --- Finished Operation: (guid: e299aa92, started: true)
 OQ: *** All Done
 Finished.
 ```
 
-Notice that the last two operations finished out of their original order, but
+Notice that the last few operations finished out of their original order, but
 the Promise still resolved properly. OperationQueue handles this with ease,
 allowing requests to complete in any order.
 
