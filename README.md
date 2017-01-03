@@ -9,11 +9,11 @@ OperationQueue is here to help.
 OperationQueue allows you to run multiple operations in parallel while making
 sure that only a subset are running in parallel at any given time.
 
-# Examples
+# Example
 ```javascript
 'use strict';
 
-const {Operation, OperationQueue} = require('../index');
+const {Operation, OperationQueue} = require('./index');
 
 /* construct an OperationQueue which runs five tasks in parallel */
 let queue = new OperationQueue(2, true);
