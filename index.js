@@ -92,7 +92,7 @@ class Operation {
   }
 
   toString() {
-    return `Operation: (guid: ${this.uid})`;
+    return `Operation: (uid: ${this.uid})`;
   }
 }
 module.exports.Operation = Operation;
