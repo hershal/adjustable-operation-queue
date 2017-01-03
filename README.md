@@ -1,8 +1,8 @@
 # Operation Queue
-Have you approached the requests per second limit on your favorite API? Wouldn't
-it be great if there was a way to serialize your requests? Async/Await is almost
-here but isn't supported everywhere yet (*cough* Safari *cough*) and still
-doesn't let you easily set the parallelism of your asyncronous calls.
+Is your app too slow because you have to serialize all your requests? Wouldn't
+it be great if there was a way to serialize your requests, but still have the
+speed of parallelism? Wouldn't it be awesome if you had parallism without having
+*so much* parallelism that your app grinds to a halt?
 
 OperationQueue is here to help.
 
@@ -22,12 +22,12 @@ let queue = new OperationQueue(2, true);
 
 /* Construct the operations graph. Use OperationQueue.addOperation on an
  * operation to add it to the queue. */
-let operations = Array.from(new Array(6), (x, i) => {
+let operations = Array.from(new Array(6), (_, i) => {
   /* Construct a new Operation. Operations take in a function which call done()
    * or failed() depending on the outcome of the operation. Please remember to
    * call done() when your task finishes otherwise the queue can't keep track of
    * your operation. */
-  return new Operation((done, failed)  => {
+  return new Operation((done)  => {
     /* Set our operations to finish at a random interval. */
     setTimeout(() => done(), Math.random()*1000);
   });
@@ -69,8 +69,9 @@ Finished.
 ```
 
 Notice that the last two operations finished out of their original order, but
-the Promise still resolved properly.
+the Promise still resolved properly. OperationQueue handles this with ease,
+allowing requests to complete in any order.
 
 # TODO
 - [ ] Arrange for cancellable Operations
-- [ ] Reject the overall Promise when an individual callback is rejected
+- [ ] Reject the overall Promise when an individual callback is rejected or fails

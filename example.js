@@ -9,12 +9,12 @@ let queue = new OperationQueue(2, true);
 
 /* Construct the operations graph. Use OperationQueue.addOperation on an
  * operation to add it to the queue. */
-let operations = Array.from(new Array(6), (x, i) => {
+let operations = Array.from(new Array(6), (_, i) => {
   /* Construct a new Operation. Operations take in a function which call done()
    * or failed() depending on the outcome of the operation. Please remember to
    * call done() when your task finishes otherwise the queue can't keep track of
    * your operation. */
-  return new Operation((done, failed)  => {
+  return new Operation((done)  => {
     /* Set our operations to finish at a random interval. */
     setTimeout(() => done(), Math.random()*1000);
   });
