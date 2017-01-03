@@ -2,7 +2,7 @@
 
 const {Operation, OperationQueue} = require('./index');
 
-/* Construct an OperationQueue which runs five tasks in parallel. The first
+/* Construct an OperationQueue which runs two tasks in parallel. The first
  * parameter is the maximum parallelism allowed. The second parameter is
  * optional and is for verbose prints. The operations run silently otherwise. */
 let queue = new OperationQueue(2, true);
