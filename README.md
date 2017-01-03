@@ -1,4 +1,6 @@
 # Operation Queue
+Adjustable asynchronous operation queue
+
 Is your app too slow because you have to serialize all your requests? Wouldn't
 it be great if there was a way to serialize your requests, but still have the
 speed of parallelism? Wouldn't it be awesome if you had parallism without having
