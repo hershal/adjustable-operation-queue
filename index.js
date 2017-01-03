@@ -4,9 +4,10 @@ const assert = require('assert');
 
 class OperationQueue {
   get pendingOperations() { return this._pendingOperations; }
+  get running() { return this._running; }
 
   constructor(parallelism, verbose) {
-    this._started = false;
+    this._running = false;
     this._parallelism = parallelism;
     this._operationsInFlight = new Array();
     this._pendingOperations = new Array();
@@ -30,6 +31,7 @@ class OperationQueue {
 
   start() {
     this._log('OQ: *** Starting');
+    this._running = true;
     return new Promise((res, rej) => {
       this._resolveCallback = res;
       this._start();
@@ -45,6 +47,7 @@ class OperationQueue {
 
     if (this._operationsInFlight.length == 0 && this._pendingOperations == 0) {
       this._log('OQ: *** All Done');
+      this._running = false;
       this._resolveCallback();
     }
 
