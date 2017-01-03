@@ -53,7 +53,7 @@ class OperationQueue {
 
   _start() {
     while (this._operationsInFlight.length < this._parallelism) {
-      let op = this._pendingOperations.pop();
+      let op = this._pendingOperations.shift();
       if (!op) {
         break;
       }
