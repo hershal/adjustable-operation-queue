@@ -13,7 +13,7 @@ sure that only a subset are running in parallel at any given time.
 ```javascript
 'use strict';
 
-const {Operation, OperationQueue} = require('./index');
+const {Operation, OperationQueue} = require('limitable-operation-queue');
 
 /* construct an OperationQueue which runs five tasks in parallel */
 let queue = new OperationQueue(2, true);
