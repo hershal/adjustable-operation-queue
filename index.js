@@ -58,9 +58,8 @@ class OperationQueue {
         break;
       }
 
-      op.start().then(() => {
-        this._taskFinished(op);
-      });
+      op.start().then(() => this._taskFinished(op));
+
       this._log('OQ: --- Started ' + op.toString());
       this._operationsInFlight.push(op);
     }
