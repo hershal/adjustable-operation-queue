@@ -1,15 +1,17 @@
 # Adjustable Operation Queue
-Adjustable asynchronous operation queue
+Asynchronous adjustable-parallelism operation queue
 
 Is your app too slow because you have to serialize all your requests? Wouldn't
-it be great if there was a way to serialize your requests, but still have the
-speed of parallelism? Wouldn't it be awesome if you had parallism without having
-*so much* parallelism that your app grinds to a halt?
+it be great if you could parallelize your requests but still retain control
+flow? Wouldn't it be awesome if you had the speed of parallelism without DOSing
+your server?
 
 OperationQueue is here to help.
 
 OperationQueue allows you to run multiple operations in parallel while making
-sure that only a subset are running in parallel at any given time.
+sure that only a subset are running at any given time. Additionally,
+OperationQueue hands you an ES2015 Promise that resolves when all the operations
+complete. Now you can have your parallelism *and* avoid callback hell. Awesome.
 
 # Example
 ```javascript
