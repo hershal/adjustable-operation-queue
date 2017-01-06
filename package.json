@@ -4,7 +4,8 @@
   "description": "Adjustable asyncronous operation queue",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -w --require intelli-espower-loader"
+    "test": "mocha --require intelli-espower-loader",
+    "watch": "mocha -w --require intelli-espower-loader"
   },
   "keywords": [],
   "author": "",
