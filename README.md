@@ -1,4 +1,5 @@
 # Adjustable Operation Queue
+[![Build Status](https://travis-ci.org/hershal/adjustable-operation-queue.svg?branch=master)](https://travis-ci.org/hershal/adjustable-operation-queue)
 Asynchronous adjustable-parallelism operation queue
 
 Is your app too slow because you have to serialize all your requests? Wouldn't
