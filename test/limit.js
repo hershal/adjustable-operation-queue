@@ -55,7 +55,7 @@ describe('Randomized OperationQueue tests', function () {
     const numOperations = Math.ceil(Math.random()*100);
 
     it(`should run ${numOperations} tasks limited to ${parallelism} in parallel`, function (done) {
-      let queue = new OperationQueue(parallelism);
+      let queue = new OperationQueue(parallelism, {randomize: true});
       assert(!queue.running);
       /* Build the operation graph; each operation here checks that the number
        * of in-flight operations does not exceed the requested parallelism */

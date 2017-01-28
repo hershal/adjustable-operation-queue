@@ -56,7 +56,16 @@ class OperationQueue {
 
   _start() {
     while (this._operationsInFlight.length < this._parallelism) {
-      let op = this._pendingOperations.shift();
+
+      let op;
+
+      if (this._options.randomize) {
+        const index = Math.floor(Math.random() * this._pendingOperations.length);
+        op = this._pendingOperations.splice(index, 1)[0];
+      } else {
+        op = this._pendingOperations.shift();
+      }
+
       if (!op) {
         break;
       }
