@@ -12,14 +12,14 @@ class OperationQueue {
     this._operationsInFlight = new Array();
     this._pendingOperations = new Array();
 
-    this._verbose = options && options.verbose ? options.verbose : false;
+    this._options = options || {};
 
     this._resolveCallback = undefined;
     this._rejectCallback = undefined;
   }
 
   _log(message) {
-    if (this._verbose) {
+    if (this._options.verbose) {
       console.log(message);
     }
   }
