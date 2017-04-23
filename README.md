@@ -27,7 +27,7 @@ const {Operation, OperationQueue} = require('./index');
 let queue = new OperationQueue(3, {verbose: true});
 
 /* Construct the operations graph. */
-let operations = Array.from(new Array(7), (_, i) => {
+let operations = [...Array(7).keys()].map((i) => {
   /* Construct a new Operation. Operations take in a function with a callback
    * which you should call when the operation is complete. */
   return new Operation((done) => {
