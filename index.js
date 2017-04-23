@@ -40,6 +40,9 @@ class OperationQueue {
 
   start(operations) {
     if (operations) { this.addOperations(operations); }
+    if (this._pendingOperations.length == 0) {
+      return Promise.resolve();
+    }
     this._log('OQ: *** Starting');
     this._running = true;
     return new Promise((resolve, reject) => {
