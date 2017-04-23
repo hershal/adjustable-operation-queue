@@ -27,9 +27,17 @@ class OperationQueue {
   addOperation(operation) {
     this._pendingOperations.push(operation);
     this._log('OQ: === Added ' + operation.toString());
+    return this;
   }
 
-  start() {
+  addOperations(operations) {
+    operations.filter((op) => op instanceof Operation)
+      .forEach((op) => this.addOperation(op));
+    return this;
+  }
+
+  start(operations) {
+    if (operations) { this.addOperations(operations); }
     this._log('OQ: *** Starting');
     this._running = true;
     return new Promise((res, rej) => {

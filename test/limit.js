@@ -31,18 +31,17 @@ describe('OperationQueue tests', function () {
   it(`should run ${parallelism} tasks`, function (done) {
     assert(!queue.running);
     operations
-      .slice(0, parallelism)
-      .forEach((t) => queue.addOperation(t));
+      .slice(0, parallelism);
     queue
+      .addOperations(operations)
       .start()
       .then(() => { assert(!queue.running); done(); });
     assert(queue.running);
   });
 
   it(`should limit ${numOperations} tasks to ${parallelism} tasks at once`, function (done) {
-    operations.forEach((t) => queue.addOperation(t));
     queue
-      .start()
+      .start(operations)
       .then(() => done());
   });
 });
@@ -61,13 +60,9 @@ describe('Randomized OperationQueue tests', function () {
        * of in-flight operations does not exceed the requested parallelism */
       let operations = linearOperations(numOperations, queue);
 
-      /* add the operations to the queue */
-      operations.forEach((t) => queue.addOperation(t));
-      assert(operations.length > 0);
-      assert(queue.pendingOperations.length == operations.length);
-
-      /* run! */
+      /* add the operations to the queue and run! */
       queue
+        .addOperations(operations)
         .start()
         .then(() => { assert(!queue.running); done(); });
     });

@@ -17,13 +17,12 @@ let operations = Array.from(new Array(7), (_, i) => {
   });
 });
 
-/* Add the operations to the queue. */
-operations.forEach((t) => queue.addOperation(t));
-
-/* Start! The OperationQueue returns an native Promise when all the operations
- * are complete. You can check if the queue is running by accessing the
- * 'running' property. Promise rejection is not yet supported :( */
+/* Add the operations to the queue and start! The OperationQueue returns an
+ * native Promise when all the operations are complete. You can check if the
+ * queue is running by accessing the 'running' property. Promise rejection is
+ * not yet supported :( */
 queue
+  .addOperations(operations)
   .start()
   .then(() => console.log('Queue is running: ' + queue.running));
 
