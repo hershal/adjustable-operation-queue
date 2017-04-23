@@ -1,6 +1,6 @@
 {
   "name": "adjustable-operation-queue",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Adjustable asyncronous operation queue",
   "main": "index.js",
   "scripts": {
