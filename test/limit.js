@@ -1,6 +1,6 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('power-assert');
 const {Operation, OperationQueue} = require('../index');
 
 
@@ -15,7 +15,7 @@ function linearOperations(numOperations, queue) {
 }
 
 
-describe('OperationQueue tests', function () {
+describe('OperationQueue Basic', function () {
   let queue, operations;
   const parallelism = 5;
   const numOperations = 10;
@@ -28,10 +28,8 @@ describe('OperationQueue tests', function () {
     operations = linearOperations(numOperations, queue);
   });
 
-  it(`should run ${parallelism} tasks`, function (done) {
+  it(`runs ${parallelism} tasks`, function (done) {
     assert(!queue.running);
-    operations
-      .slice(0, parallelism);
     queue
       .addOperations(operations)
       .start()
@@ -39,7 +37,7 @@ describe('OperationQueue tests', function () {
     assert(queue.running);
   });
 
-  it(`should limit ${numOperations} tasks to ${parallelism} tasks at once`, function (done) {
+  it(`limits ${numOperations} tasks to ${parallelism} tasks at once`, function (done) {
     queue
       .start(operations)
       .then(() => done());
@@ -47,13 +45,13 @@ describe('OperationQueue tests', function () {
 });
 
 
-describe('Randomized OperationQueue tests', function () {
+describe('Randomized OperationQueue Basic', function () {
   const numTimes = 10;
   for (let i=0; i<numTimes; ++i) {
     const parallelism = Math.ceil(Math.random()*100);
     const numOperations = Math.ceil(Math.random()*100);
 
-    it(`should run ${numOperations} tasks limited to ${parallelism} in parallel`, function (done) {
+    it(`runs ${numOperations} tasks limited to ${parallelism} in parallel`, function (done) {
       let queue = new OperationQueue(parallelism, {randomize: true});
       assert(!queue.running);
       /* Build the operation graph; each operation here checks that the number
