@@ -36,11 +36,11 @@ describe('OperationQueue Cancel', function () {
 
   beforeEach(function () {
     /* construct the queue */
-    queue = new OperationQueue(parallelism, {verbose: true});
+    queue = new OperationQueue(parallelism);
   });
 
 
-  it('cancels a task from the outside', function (done) {
+  it('cancels the queue by OperationQueue call', function (done) {
     /* construct the operations graph */
     const operations = linearOperations(numOperations, queue);
 
@@ -66,7 +66,7 @@ describe('OperationQueue Cancel', function () {
   });
 
 
-  it('cancels a task from an Operation', function (done) {
+  it('cancels the queue by Operation failure', function (done) {
     const failureRate = 0.2;
     const operations = randomFailOperations(numOperations, queue, failureRate);
 
