@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 
+
 class OperationQueue {
   get pendingOperations() { return this._pendingOperations; }
   get running() { return this._running; }
@@ -86,6 +87,7 @@ class OperationQueue {
   }
 }
 module.exports.OperationQueue = OperationQueue;
+
 
 class Operation {
   get uid() { return this._uid; }
