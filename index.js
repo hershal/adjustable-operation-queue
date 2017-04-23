@@ -17,6 +17,7 @@ class OperationQueue {
 
     this._resolveCallback = undefined;
     this._rejectCallback = undefined;
+    this._callback = undefined;
   }
 
   _log(message) {
@@ -41,10 +42,33 @@ class OperationQueue {
     if (operations) { this.addOperations(operations); }
     this._log('OQ: *** Starting');
     this._running = true;
-    return new Promise((res, rej) => {
-      this._resolveCallback = res;
+    return new Promise((resolve, reject) => {
+      this._resolveCallback = resolve;
+      this._rejectCallback = reject;
+      this._callback = this._resolveCallback;
       this._start();
     });
+  }
+
+  /* Cancel simply drains the queue of pending operations. In-flight operations
+   * continue to run. */
+  cancel() {
+    this._log('OQ: ### Cancel Requested');
+    this._callback = this._rejectCallback;
+    this._drain();
+  }
+
+  _drain() {
+    this._log('OQ: ### Draining Pending Operations');
+    /* This clears the array without destroying others' references to it. */
+    /* http://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript/ */
+    this._pendingOperations.length = 0;
+  }
+
+  _taskFailed(task) {
+    this._log('OQ: ### Failed   ' + task.toString());
+    this._callback = this._rejectCallback;
+    this._drain();
   }
 
   _taskFinished(task) {
@@ -57,7 +81,7 @@ class OperationQueue {
     if (this._operationsInFlight.length == 0 && this._pendingOperations == 0) {
       this._log('OQ: *** All Done');
       this._running = false;
-      this._resolveCallback();
+      this._callback();
     }
 
     this._start();
@@ -79,7 +103,9 @@ class OperationQueue {
         break;
       }
 
-      op.start().then(() => this._taskFinished(op));
+      op.start()
+        .catch(() => this._taskFailed(op))
+        .then(() => this._taskFinished(op));
 
       this._log('OQ: +++ Started  ' + op.toString());
       this._operationsInFlight.push(op);
