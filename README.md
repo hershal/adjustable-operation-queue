@@ -3,6 +3,8 @@
 
 Asynchronous adjustable-parallelism operation queue
 
+Inspired by NSOperation and NSOperationQueue.
+
 Is your app too slow because you have to serialize all your requests? Wouldn't
 it be great if you could parallelize your requests but still retain control
 flow? Wouldn't it be awesome if you had the speed of parallelism without DOSing
@@ -86,8 +88,8 @@ allowing requests to complete in any order.
 # Cancellation
 The OperationQueue is cancellable. You cancel the OperationQueue by calling
 `queue.cancel()`. Note that the queue is not actually stopped at that point
-because there may be running operations. Rather, the queue does not run new
-operations to run after cancellation. When the last in-progress operation
+because there may be running operations. Rather, the queue does not allow new
+operations to run after queue cancellation. When the last in-progress operation
 completes, the queue will reject the Promise it returned to you when you called
 `queue.start()`. It is up to you at that point to handle the Promise rejection.
 
