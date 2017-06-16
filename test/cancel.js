@@ -28,6 +28,20 @@ function randomFailOperations(numOperations, queue, failureRate) {
 }
 
 
+function checkQueueCancellation(queue, operations, done) {
+  let caught = false;
+  assert(!queue.running);
+  assert(!queue.cancelled);
+  queue
+    .addOperations(operations)
+    .start()
+    .catch(() => { caught = true; assert(!queue.running); assert(queue.cancelled); })
+    .then(() => { assert(caught); done(); });
+  assert(queue.running);
+  assert(!queue.cancelled);
+}
+
+
 describe('OperationQueue Cancel', function () {
   let queue;
   const parallelism = 5;
@@ -44,9 +58,9 @@ describe('OperationQueue Cancel', function () {
     /* construct the operations graph */
     const operations = linearOperations(numOperations, queue);
 
-    let caught = false;
     setTimeout(() => {
       assert(queue.running);
+      assert(!queue.cancelled);
       assert(queue.pendingOperations.length > 0);
       assert(queue._operationsInFlight.length == parallelism);
       queue.cancel();
@@ -54,30 +68,28 @@ describe('OperationQueue Cancel', function () {
       assert(queue._operationsInFlight.length == parallelism);
       /* The queue should drain */
       assert(queue.running);
+      assert(queue.cancelled);
     }, 20);
 
-    assert(!queue.running);
-    queue
-      .addOperations(operations)
-      .start()
-      .catch(() => {caught = true; assert(!queue.running);})
-      .then(() => { assert(caught); done(); });
-    assert(queue.running);
+    checkQueueCancellation(queue, operations, done);
   });
 
 
   it('cancels the queue by Operation failure', function (done) {
     const failureRate = 0.2;
     const operations = randomFailOperations(numOperations, queue, failureRate);
+    checkQueueCancellation(queue, operations, done);
+  });
 
-    let caught = false;
 
+  it('resets the OperationQueue cancelled flag when reusing a queue', function (done) {
+    queue.cancel();
     assert(!queue.running);
+    assert(queue.cancelled);
     queue
-      .addOperations(operations)
       .start()
-      .catch(() => {caught = true; assert(!queue.running);})
-      .then(() => { assert(caught); done(); });
-    assert(queue.running);
+      .then(() => { assert(!queue.running); assert(!queue.cancelled); done(); });
+    /* There are no operations in the queue, assert(queue.running) would fail. */
+    assert(!queue.cancelled);
   });
 });

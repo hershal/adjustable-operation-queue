@@ -6,9 +6,11 @@ const assert = require('assert');
 class OperationQueue {
   get pendingOperations() { return this._pendingOperations; }
   get running() { return this._running; }
+  get cancelled() { return this._cancelled; }
 
   constructor(parallelism, options) {
     this._running = false;
+    this._cancelled = false;
     this._parallelism = parallelism;
     this._operationsInFlight = new Array();
     this._pendingOperations = new Array();
@@ -39,6 +41,7 @@ class OperationQueue {
   }
 
   start(operations) {
+    this._cancelled = false;
     if (operations) { this.addOperations(operations); }
     if (this._pendingOperations.length == 0) {
       return Promise.resolve();
@@ -66,6 +69,7 @@ class OperationQueue {
     /* This clears the array without destroying others' references to it. */
     /* http://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript/ */
     this._pendingOperations.length = 0;
+    this._cancelled = true;
   }
 
   _taskFailed(task) {
