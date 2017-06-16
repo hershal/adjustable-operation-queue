@@ -87,68 +87,90 @@ allowing requests to complete in any order.
 
 # Cancellation
 The OperationQueue is cancellable. You cancel the OperationQueue by calling
-`queue.cancel()`. Note that the queue is not actually stopped at that point
-because there may be running operations. Rather, the queue does not allow new
-operations to run after queue cancellation. When the last in-progress operation
-completes, the queue will reject the Promise it returned to you when you called
-`queue.start()`. It is up to you at that point to handle the Promise rejection.
+`queue.cancel()`. The `queue.cancelled` property is then set. Note that the
+queue is not actually stopped when `queue.cancel()` is called because there may
+be running operations in the queue. Rather, OperationQueue does not allow
+*pending* operations to run after queue cancellation. When the last in-progress
+operation completes, the queue will reject the Promise it returned to you when
+you called `queue.start()`. It is up to you at that point to handle the Promise
+rejection. Operations should periodically check the `queue.cancelled`
+property to avoid potential deadlocks.
 
 # Operation Failure
 Operation failure is handled similar to cancellation: If an Operation fails,
-then the OperationQueue drains and rejects its Promise once all running
-Operations finish. If you do not want to stop the queue, call `done()` instead
-of `fail()`.
+then the OperationQueue sets `queue.cancelled`, drains the pending operations,
+and rejects its Promise once all running Operations finish. If you do not want
+to stop the queue, call `done()` instead of `fail()`. Operations should
+periodically check the `queue.cancelled` property to avoid potential deadlocks.
 
 Here's an example which demonstrates Operation failure:
 
 ```javascript
 'use strict';
 
-const {Operation, OperationQueue} = require('adjustable-operation-queue');
+const {Operation, OperationQueue} = require('./index');
 
+/* Construct an OperationQueue which runs three tasks in parallel. The first
+ * parameter is the maximum parallelism allowed. The second parameter is
+ * optional and is for verbose prints. The operations run silently otherwise. */
 let queue = new OperationQueue(3, {verbose: true});
 
+/* Construct the operations graph. */
 let operations = [...Array(7).keys()].map((i) => {
+  /* Construct a new Operation. Operations take in a function with a callback
+   * which you should call when the operation is complete. */
   return new Operation((done, fail) => {
     /* Decide if this operation fails */
     const callback = Math.random() > 0.5 ? done : fail;
+    /* Set our operations to finish at a random interval. */
     setTimeout(() => callback(), Math.random()*1000);
   });
 });
 
+/* Add the operations to the queue and start! The OperationQueue returns an
+ * native Promise when all the operations are complete. You can check if the
+ * queue is running by accessing the 'running' property. Promise rejection is
+ * not yet supported :( */
 queue
   .addOperations(operations)
   .start()
   .then(() => console.log('You should not see this message; the queue should reject'))
   .catch(() => console.log('Queue cancelled; some operation(s) failed'))
-  .then(() => console.log('Queue is running: ' + queue.running));
+  .then(() => console.log('Queue is running: ' + queue.running))
+  .then(() => console.log('Queue is cancelled: ' + queue.cancelled));
+
+/* Control flow returns back to you immediately after starting the first batch
+ * of operations. */
 console.log('Queue is running: ' + queue.running);
+console.log('Queue is cancelled: ' + queue.cancelled);
 ```
 
 Which will output something like this:
 
 ```
 $ node ./example-fail.js
-OQ: === Added (uid: bd38091d)
-OQ: === Added (uid: af58061f)
-OQ: === Added (uid: 63f5ed5b)
-OQ: === Added (uid: 9a2f0e01)
-OQ: === Added (uid: 21af5986)
-OQ: === Added (uid: c32e3dab)
-OQ: === Added (uid: fc36351e)
+OQ: === Added (uid: 96bfcc0d)
+OQ: === Added (uid: 2ac154a4)
+OQ: === Added (uid: c4f528b4)
+OQ: === Added (uid: f41fd26f)
+OQ: === Added (uid: be6340ff)
+OQ: === Added (uid: 15ee8864)
+OQ: === Added (uid: e9724633)
 OQ: *** Starting
-OQ: +++ Started  (uid: bd38091d)
-OQ: +++ Started  (uid: af58061f)
-OQ: +++ Started  (uid: 63f5ed5b)
+OQ: +++ Started  (uid: 96bfcc0d)
+OQ: +++ Started  (uid: 2ac154a4)
+OQ: +++ Started  (uid: c4f528b4)
 Queue is running: true
-OQ: ### Failed   (uid: af58061f)
+Queue is cancelled: false
+OQ: ### Failed   (uid: 2ac154a4)
 OQ: ### Draining Pending Operations
-OQ: --- Finished (uid: af58061f)
-OQ: --- Finished (uid: 63f5ed5b)
-OQ: --- Finished (uid: bd38091d)
+OQ: --- Finished (uid: 2ac154a4)
+OQ: --- Finished (uid: 96bfcc0d)
+OQ: --- Finished (uid: c4f528b4)
 OQ: *** All Done
 Queue cancelled; some operation(s) failed
 Queue is running: false
+Queue is cancelled: true
 ```
 
 Notice that three tasks finished between a the failure and the queue completion,

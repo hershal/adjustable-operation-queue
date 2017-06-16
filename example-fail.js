@@ -28,8 +28,10 @@ queue
   .start()
   .then(() => console.log('You should not see this message; the queue should reject'))
   .catch(() => console.log('Queue cancelled; some operation(s) failed'))
-  .then(() => console.log('Queue is running: ' + queue.running));
+  .then(() => console.log('Queue is running: ' + queue.running))
+  .then(() => console.log('Queue is cancelled: ' + queue.cancelled));
 
 /* Control flow returns back to you immediately after starting the first batch
  * of operations. */
 console.log('Queue is running: ' + queue.running);
+console.log('Queue is cancelled: ' + queue.cancelled);
